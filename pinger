@@ -11,17 +11,34 @@ exec /usr/local/bin/deadman <(
 for host in ${array[@]}
 do
   # A
-  As=`/usr/bin/host -t a ${host} | grep "has address" | awk '{print $4}'`
+  As=`host -N 2 -t a ${host} | grep "has address" | awk '{print $4}'`
   if [ "${As}" ]; then
     for A in ${As[@]}; do
-      /usr/bin/echo "${host} ${A}"
+      echo "${host} ${A}"
     done
   fi
+
   # AAAA
-  AAAAs=`/usr/bin/host -t aaaa ${host} | grep "has IPv6 address" | awk '{print $5}'`
+  AAAAs=`host -N 2 -t aaaa ${host} | grep "has IPv6 address" | awk '{print $5}'`
   if [ "${AAAAs}" ]; then
     for AAAA in ${AAAAs}; do
-      /usr/bin/echo "${host} ${AAAA}"
+      echo "${host} ${AAAA}"
+    done
+  fi
+
+  # IPv4
+  IPv4s=`echo ${host} | grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'`
+  if [ "${IPv4s}" ]; then
+    for IPv4 in ${IPv4s}; do
+      echo "${IPv4} ${IPv4}"
+    done
+  fi
+
+  # IPv6
+  IPv6s=`echo ${host} | grep -E '[0-9A-Fa-f:]*:[0-9A-Fa-f:].*'`
+  if [ "${IPv6s}" ]; then
+    for IPv6 in ${IPv6s}; do
+      echo "${IPv6} ${IPv6}"
     done
   fi
 done)
