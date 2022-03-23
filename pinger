@@ -1,0 +1,27 @@
+#!/bin/bash
+set -u
+
+echo -e "Input hostname(e.g. google.co.jp).\nPress [Ctrl+d] when input finished."
+while read line
+do
+  array+=($line)
+done
+
+exec /usr/local/bin/deadman <(
+for host in ${array[@]}
+do
+  # A
+  As=`/usr/bin/host -t a ${host} | grep "has address" | awk '{print $4}'`
+  if [ "${As}" ]; then
+    for A in ${As[@]}; do
+      /usr/bin/echo "${host} ${A}"
+    done
+  fi
+  # AAAA
+  AAAAs=`/usr/bin/host -t aaaa ${host} | grep "has IPv6 address" | awk '{print $5}'`
+  if [ "${AAAAs}" ]; then
+    for AAAA in ${AAAAs}; do
+      /usr/bin/echo "${host} ${AAAA}"
+    done
+  fi
+done)
